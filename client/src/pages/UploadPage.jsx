@@ -23,7 +23,7 @@ function UploadPage() {
     setLoading(true);
     try {
       const data = await uploadResume(file);
-      navigate('/results', { state: { analysis: data.analysis } });
+      navigate('/results', { state: { analysis: data.analysis, file: file } });
     } catch (err) {
       setError('Something went wrong. Make sure the server is running.');
     } finally {
@@ -75,6 +75,13 @@ function UploadPage() {
               : 'bg-indigo-600 hover:bg-indigo-700'}`}
         >
           {loading ? 'Analyzing... please wait ⏳' : 'Analyze My Resume 🚀'}
+        </button>
+
+        <button
+          onClick={() => navigate('/rewrite')}
+          className="w-full mt-3 py-3 rounded-xl border border-indigo-400 text-indigo-600 font-semibold hover:bg-indigo-50 transition"
+        >
+          Rewrite My Resume ✍️
         </button>
 
       </div>

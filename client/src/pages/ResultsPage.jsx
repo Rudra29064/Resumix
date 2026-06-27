@@ -1,12 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { rewriteResumePDF } from '../services/api';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ScoreCard from '../components/ScoreCard';
 import ListCard from '../components/ListCard';
 
 function ResultsPage() {
+
+  const [rewriting, setRewriting] = useState(false);
+  const [rewriteError, setRewriteError] = useState('');
+
   const { state } = useLocation();
   const navigate = useNavigate();
   const analysis = state?.analysis;
+  const file = state?.file;
+
+
+  const handleRewrite = async () => {
+    if (!file) return setRewriteError('Original file not found. Please re-upload.');
+    setRewriting(true);
+    setRewriteError('');
+    try {
+      await rewriteResumePDF(file);
+    } catch (err) {
+      setRewriteError('Something went wrong. Please try again.');
+    } finally {
+      setRewriting(false);
+    }
+  };
 
   if (!analysis) {
     return (
@@ -53,6 +73,23 @@ function ResultsPage() {
 
         {/* Suggestions */}
         <ListCard title="💡 Improvement Suggestions" items={analysis.suggestions} color="indigo" />
+
+        {/* Rewrite Button */}
+        <div className="mt-6 bg-white rounded-2xl shadow p-6 text-center">
+          <h2 className="text-lg font-bold text-gray-700 mb-2">✍️ Want a Better Resume?</h2>
+          <p className="text-gray-500 text-sm mb-4">
+            AI will rewrite your resume with stronger language and download it as a PDF
+          </p>
+          {rewriteError && <p className="text-red-500 text-sm mb-3">{rewriteError}</p>}
+          <button
+            onClick={handleRewrite}
+            disabled={rewriting}
+            className={`w-full py-3 rounded-xl font-semibold text-white transition-all
+              ${rewriting ? 'bg-purple-300 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+          >
+            {rewriting ? 'Rewriting & Generating PDF... ⏳' : 'Rewrite & Download PDF ✍️'}
+          </button>
+        </div>
 
         {/* Back Button */}
         <button

@@ -17,3 +17,44 @@ export const uploadResume = async (file) => {
   const data = await response.json();
   return data;
 };
+
+export const rewriteResume = async (file) => {
+  const formData = new FormData();
+  formData.append('resume', file);
+
+  const response = await fetch(`${API_URL}/rewrite`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Rewrite failed');
+  }
+
+  return await response.json();
+};
+
+export const rewriteResumePDF = async (file) => {
+  const formData = new FormData();
+  formData.append('resume', file);
+
+  const response = await fetch(`${API_URL}/rewrite-pdf`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Rewrite failed');
+  }
+
+  // Convert response to downloadable PDF
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rewritten-resume.pdf';
+  a.click();
+  window.URL.revokeObjectURL(url);
+};
